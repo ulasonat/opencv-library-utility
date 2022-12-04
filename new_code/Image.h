@@ -12,6 +12,7 @@
 
 
 struct NotEnoughPointsErr {};
+struct FailedToLoadImgErr {};
 
 class Image {
 
@@ -22,7 +23,9 @@ public:
 
     Image() = default;
     // construct an image from a filename
-    Image(const std::string& filename) : img(cv::imread(filename)) {}
+    Image(const std::string& filename) : img(cv::imread(filename)) {
+        if (img.empty()) throw FailedToLoadImgErr{};
+    }
     // construct an image from a cv::Mat (cv's image class)
     Image(const cv::Mat _img) : img(_img) {}
 
@@ -66,6 +69,7 @@ public:
     }
 
 private:
+
     // callback for mouse clicking, adds this point to the vector
     static void add_point_cb(int event, int x, int y, int flags, void* data) {
         if (event == cv::EVENT_LBUTTONDOWN)
