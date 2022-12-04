@@ -38,7 +38,8 @@ public:
     Image(const cv::Mat _img) : img(_img) {}
 
     // display this image, optionally wait for a keystroke to move on
-    void show(const std::string& filename = "", bool wait_key = true) const {
+    void show(const std::string& filename = "_tmp_file", bool wait_key = true) const {
+        cv::namedWindow(filename, 1);
         cv::imshow(filename, img);
 
         if (wait_key)

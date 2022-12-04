@@ -46,6 +46,7 @@ static Image alpha_blend(const Image& img_in) {
     Image other_img = get_image_from_user("image to blend");
     double other_weight = get_val_from_user<double>("weight for other img");
 
+    other_img.fit_to_size(img_in);
     return img_in.alpha_blend(other_img, other_weight);
 }
 
