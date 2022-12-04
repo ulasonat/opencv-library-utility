@@ -8,11 +8,19 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 #include <cassert>
 
 
 struct NotEnoughPointsErr {};
 struct FailedToLoadImgErr {};
+
+static void debug_assert(bool var, const std::string& msg = "") {
+    if (!var)
+        std::cerr << msg << std::endl;
+
+    assert(var);
+}
 
 class Image {
 
@@ -46,7 +54,7 @@ public:
     // returns the result of blending this image with another image at given weight
     Image alpha_blend(const Image& other, const double other_weight) const {
         Image ret;
-        cv::addWeighted(img, (1 - other_weight), other.img, other_weight, ret.img);
+        cv::addWeighted(img, (1 - other_weight), other.img, other_weight, 0.0, ret.img);
         return ret;
     }
 
@@ -58,13 +66,13 @@ public:
     }
 
     // returns the result of blurring this image
-    Image guassian_blur(const int kernel_sz) const {
-        assert(kernel_sz % 2, "Kernel size must be an odd number");
-        assert(kernel_sz > 1, "Kernel size must be greater than 1");
-        assert(kernel_sz < 1000, "Kernel size must be less than 1000");
+    Image gaussian_blur(const int kernel_sz) const {
+        debug_assert(kernel_sz % 2, "Kernel size must be an odd number");
+        debug_assert(kernel_sz > 1, "Kernel size must be greater than 1");
+        debug_assert(kernel_sz < 1000, "Kernel size must be less than 1000");
 
         Image ret;
-        cv::GuassianBlur(img, ret.img, cv::Size(kernel_sz, kernel_sz), 0);
+        cv::GaussianBlur(img, ret.img, cv::Size(kernel_sz, kernel_sz), 0);
         return ret;
     }
 
@@ -95,7 +103,7 @@ public:
 
     // returns the homography of a subimage of this image, needs 4 points to define subimage
     Image create_homography(const std::vector<cv::Point>& points) const {
-        assert(points.size() == 4, "Exactly 4 points must be given");
+        debug_assert(points.size() == 4, "Exactly 4 points must be given");
 
         const std::vector<cv::Point> dst_points = {
             cv::Point(0,        0),
@@ -106,14 +114,14 @@ public:
 
         cv::Mat tmp = cv::findHomography(points, dst_points);
         Image ret;
-        cv::warpPerspective(img, ret.img, tmp, cv::size(img));
+        cv::warpPerspective(img, ret.img, tmp, img.size());
 
         return ret;
     }
 
     // returns the mean of these points
     // TODO @vicente: is this necessary?
-    static cv::Point get_polygon_mean(const std::vector<cv::Point>& points) const {
+    static cv::Point get_polygon_mean(const std::vector<cv::Point>& points) {
         int sum_x = 0, sum_y = 0;
 
         for (const cv::Point& point : points) {
@@ -129,19 +137,19 @@ public:
     // return the grayscale version of this image
     Image grayscale() const {
         Image ret;
-        cvtColor(img, ret.img, COLOR_BGR2GRAY);
+        cv::cvtColor(img, ret.img, cv::COLOR_BGR2GRAY);
         return ret;
     }
 
     // threshold this image with one of the given types using some threshold value
     Image threshold(const int type, const int value) const {
-        assert(type >= 1, "Threshold type must be at least 1");
-        assert(type <= 5, "Threshold type must be at most 5");
-        assert(value >= 0, "Threshold value must be non-negative");
-        assert(value < 256, "Threshold value must be less than 256");
+        debug_assert(type >= 1, "Threshold type must be at least 1");
+        debug_assert(type <= 5, "Threshold type must be at most 5");
+        debug_assert(value >= 0, "Threshold value must be non-negative");
+        debug_assert(value < 256, "Threshold value must be less than 256");
 
         Image ret;
         cv::threshold(grayscale().img, ret.img, value, 255, type);
         return ret;
     }
-}
+};
