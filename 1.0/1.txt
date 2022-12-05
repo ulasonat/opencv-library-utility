@@ -1,3 +1,0 @@
-sample 1.0 video functions:
-  tracking
-  detection
