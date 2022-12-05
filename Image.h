@@ -17,7 +17,7 @@ struct FailedToLoadImgErr {};
 
 static void debug_assert(bool var, const std::string& msg = "") {
     if (!var)
-        std::cerr << msg << std::endl;
+        std::cerr << msg << "\n";
 
     assert(var);
 }
