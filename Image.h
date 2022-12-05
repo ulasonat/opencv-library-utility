@@ -38,12 +38,12 @@ public:
     Image(const cv::Mat _img) : img(_img) {}
 
     // display this image, optionally wait for a keystroke to move on
-    void show(const std::string& filename = "_tmp_file", bool wait_key = true) const {
+    void show(const std::string& filename = "_tmp_show") const {
         cv::namedWindow(filename, 1);
         cv::imshow(filename, img);
-
-        if (wait_key)
-            cv::waitKey(0);
+        std::cout << "* Press 0 to continue\n";
+        cv::waitKey(0);
+        cv::destroyWindow(filename);
     }
 
     // clears all currently displayed windows
@@ -88,13 +88,14 @@ private:
 public:
 
     // displays image, reads nr_points points, then waits for 0 to close
-    std::vector<cv::Point> collect_points(const int nr_points, const std::string& window_name = "") const {
+    std::vector<cv::Point> collect_points(const int nr_points, const std::string& window_name = "_tmp_collect") const {
         std::vector<cv::Point> ret;
 
         cv::namedWindow(window_name, 1);
         cv::setMouseCallback(window_name, Image::add_point_cb, reinterpret_cast<void*>(&ret));
         cv::imshow(window_name, img);
         cv::waitKey(0);
+        cv::destroyWindow(window_name);
 
         if (ret.size() < nr_points) throw NotEnoughPointsErr{};
 
@@ -121,7 +122,6 @@ public:
     }
 
     // returns the mean of these points
-    // TODO @vicente: is this necessary?
     static cv::Point get_polygon_mean(const std::vector<cv::Point>& points) {
         int sum_x = 0, sum_y = 0;
 
@@ -133,7 +133,36 @@ public:
         return cv::Point(sum_x / points.size(), sum_y / points.size());
     }
 
-    // TODO @nick, @vicente is proj_img.cpp done?
+    // return the result of projecting specified portion of other
+    // onto specified portion of this
+    Image proj_img(
+        const Image& other,
+        const std::vector<cv::Point>& other_points,
+        const std::vector<cv::Point>& this_points) const {
+
+        Image ret(img);
+
+        // mask out the projection site on dst
+        cv::fillConvexPoly(ret.img, this_points.data(), 4, cv::Scalar(0, 0, 0));
+
+        // mask out the rest of src
+        cv::Mat src(other.img.rows, other.img.cols, CV_8UC3, cv::Scalar(0, 0, 0));
+        cv::fillConvexPoly(src, other_points.data(), 4, cv::Scalar(255, 255, 255));
+        cv::bitwise_and(src, other.img, src);
+
+        // project src cutout onto dst cutout
+        cv::warpPerspective(
+            src,
+            src,
+            cv::findHomography(other_points, this_points),
+            img.size()
+        );
+
+        // combine the cutouts into the output
+        cv::bitwise_or(ret.img, src, ret.img);
+
+        return ret;
+    }
 
     // return the grayscale version of this image
     Image grayscale() const {
