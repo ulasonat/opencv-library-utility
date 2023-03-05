@@ -35,6 +35,16 @@ Create a `Image` or `Video` object using a file path or an instance of `cv::Vide
 ## Documentation
 Please find the *documentation.pdf* included.
 
+## Benchmarking
+We were interested in determining whether our wrapper for OpenCV would be faster than the Python code using OpenCV, which actually runs C++ in the background. To measure the time taken by each function call, we created a Benchmark.cpp file. We also created a benchmark script Benchmark.py written in Python to compare the efficiency of our implemented library against the Python code using OpenCV. We created an Image class that imitates the Image class we created in C++.
+
+Here are some comparison of some functionalities on our project against the OpenCV functions through Python):
+|                                     | Edge Detection | Gaussian Blurring | Alpha Blend |
+|-------------------------------------|----------------|-------------------|-------------|
+| Our library & utility               | 2.58           | 2.88              | 1.48        |
+| OpenCV with Python                  | 2.67           | 3.04              | 1.89        |
+| Results we are                      | 3% faster      | 5% faster         | 22% faster |
+
 ## Special Thanks to Dr. Bjarne Stroustrup
 As students working on this project, we were incredibly fortunate to have the opportunity to be mentored by such an esteemed figure.
 
