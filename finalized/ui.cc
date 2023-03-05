@@ -184,63 +184,6 @@ static Video detection(Video& cap_in){
 
 // Testing
 
-void edge_detect_benchmark(){
-    Image img1 = Image("sp500.png");
-    auto totalTime = 0;
-    for(int i=0; i<5000; i++){
-        auto start = std::chrono::high_resolution_clock::now();
-        img1 = img1.edge_detect(100,200); 
-        auto end = std::chrono::high_resolution_clock::now();
-        auto time = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-        totalTime += time.count();
-    }
-     cout << "totalTime in ms" << (totalTime/5000.0)/1000.0 << std::endl;
-}
-
-void gaussian_blur_benchmark(){
-    Image img1 = Image("sp500.png");
-    auto totalTime = 0;
-    for(int i=0; i<500; i++){
-        auto start = std::chrono::high_resolution_clock::now();
-        img1 = img1.gaussian_blur(15); 
-        auto end = std::chrono::high_resolution_clock::now();
-        auto time = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-        totalTime += time.count();
-    }
-     cout << "Average time" << (totalTime/500.0)/1000.0 << "";
-}
-
-void gaussian_blur_benchmark(){
-    Image img1 = Image("sp500.png");
-    auto totalTime = 0;
-    for(int i=0; i<500; i++){
-        auto start = std::chrono::high_resolution_clock::now();
-        img1 = img1.gaussian_blur(15); 
-        auto end = std::chrono::high_resolution_clock::now();
-        auto time = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-        totalTime += time.count();
-    }
-     cout << "Average time" << (totalTime/500.0)/1000.0 << "";
-}
-
-// needs points
-void create_homography_benchmark(){
-    Image img1 = Image("sp500.png");
-    auto totalTime = 0;
-    for(int i=0; i<500; i++){
-        auto start = std::chrono::high_resolution_clock::now();
-        // need pts
-        img1 = img1.create_homography(); 
-        auto end = std::chrono::high_resolution_clock::now();
-        auto time = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-        totalTime += time.count();
-    }
-    cout << "Average time" << (totalTime/500.0)/1000.0 << "";
-
-
-}
-
-
 
 
 
@@ -272,6 +215,7 @@ static void print_image_menu() {
     cout << "\t8: threshold\n";
     cout << "\t9: grayscale\n";
     cout << "\tD: object detection\n";
+    cout << "\tS: save image\n";
     cout << "\t0: exit\n";
     cout << "$ ";
 }
@@ -327,10 +271,10 @@ static void image_cases(){
             img = detection(img);
             img.show();
             break;
-        case '0':
+        case 'S':
+            img.save("outfile.png");
             break;
-        case 'T':
-            gaussian_blur_benchmark();
+        case '0':
             break;
         default:
             cerr << "Err: unhandled option\n";
@@ -360,7 +304,6 @@ static void video_cases(){
     Video cap = get_video_from_user();
     
     char opt;
-    do {
         print_video_menu();
         cin >> opt;
         switch(opt){
@@ -383,13 +326,12 @@ static void video_cases(){
             cap = grayscale(cap);
             break;
         case 'T':
-            break;
             cap = tracking(cap);
+            break;
         case 'D':
             cap = detection(cap);
             break;
         }
-    }  while (opt != '0');
 }
 
 int main() {
