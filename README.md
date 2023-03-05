@@ -1,5 +1,7 @@
 ## Overview
 
+<img src="https://img.shields.io/github/license/ulasonat/opencv-library-utility">
+
 This program offers various functionalities to process images & videos using OpenCV. These functionalities include transformation of image & video to grayscale, edge detection, Gaussian blurring, thresholding, motion tracking, and object detection. 
 
 ## Requirements 
